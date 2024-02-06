@@ -4,7 +4,7 @@ Title: What the Package Does (Title Case)
 Version: 0.0.1
 Author: Sushil Paudel
 Maintainer: Sushil Paudel <clarkesushil@gmail.com>
-Description: Package for GEOG246-346 class assignment.
+Description: Package for GEOG246-346 class assignments.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

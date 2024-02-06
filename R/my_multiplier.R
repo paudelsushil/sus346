@@ -5,9 +5,9 @@
 #' @param x A number
 #' @export
 #' @examples
-#' my_number_checker(4)
-#' my_number_checker(8)
-#' my_number_checker(12)
+#' my_multiplier(2)
+#' my_multiplier(6)
+#' my_multiplier(12)
 
 my_multiplier <- function(value) {
   if(value < 5) {
@@ -19,8 +19,8 @@ my_multiplier <- function(value) {
   }
 }
 
-my_multiplier(4)
+my_multiplier(2)
 
-my_multiplier(8)
+my_multiplier(6)
 
 my_multiplier(12)
