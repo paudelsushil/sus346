@@ -1,0 +1,29 @@
+---
+title: "Overview of the sus346 Package"
+author: "Sushil Paudel"
+date: "2024-02-17"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my_first_vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+`sus346` is the package I am developing for the coursework component of GEOG346 (Geo-Spatial Analysis with R).
+
+I currently has one function, `my_multiplier`, which is executed as follows:
+```{r setup}
+library(sus346)
+my_multiplier(4)
+my_multiplier(8)
+my_multiplier(12)
+```
+
+I will be adding others, and updating this vignette as we go.
+
