@@ -14,7 +14,7 @@ This function allows you to test whether a number falls into the
 Goldilocks range (5-9) or not
 }
 \examples{
-my_number_checker(4)
-my_number_checker(8)
-my_number_checker(12)
+my_multiplier(2)
+my_multiplier(6)
+my_multiplier(12)
 }

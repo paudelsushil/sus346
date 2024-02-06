@@ -9,6 +9,7 @@
 #' my_multiplier(6)
 #' my_multiplier(12)
 
+
 my_multiplier <- function(value) {
   if(value < 5) {
     return(value*1)
@@ -19,8 +20,7 @@ my_multiplier <- function(value) {
   }
 }
 
+
 my_multiplier(2)
-
 my_multiplier(6)
-
 my_multiplier(12)

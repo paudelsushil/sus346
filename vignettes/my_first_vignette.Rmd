@@ -19,7 +19,9 @@ knitr::opts_chunk$set(
 
 I currently has one function, `my_multiplier`, which is executed as follows:
 ```{r setup}
+
 library(sus346)
+
 my_multiplier(2)
 my_multiplier(6)
 my_multiplier(12)
