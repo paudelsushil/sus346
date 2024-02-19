@@ -1,7 +1,7 @@
 Package: sus346
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.0.1
+Version: 0.1.1
 Author: Sushil Paudel
 Maintainer: Sushil Paudel <clarkesushil@gmail.com>
 Description: Package for GEOG246-346 class assignments.
