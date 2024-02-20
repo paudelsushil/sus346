@@ -2,33 +2,176 @@
 title: "module3"
 author: "Sushil Paudel"
 date: "2024-02-13"
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{module3}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
-## R Markdown
+## Vignette tasks
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r, error = TRUE}
+set.seed(1)
+v1 <- sample(as.integer(1:100), 20, replace = TRUE)
+
+v2 <- sample(as.integer(1:10), 10, replace = TRUE)
+
+v3 <- runif(20, min = 0, max = 1)
+
+v4 <- sample(LETTERS[v2], 20, replace = TRUE)
+
+print(v1)
+print(v2)
+print(v3)
+print(v4)
+
+
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+### Create a matrix **m1** from **v1** and **v2**
+```{r, error = TRUE}
+m1 <- cbind(v1, v2)
+m1
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+m2 <- cbind(v2, v3)
+m2
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-```{python}
-import pandas
+
+### Create a data.frame named DF by binding **v1**, **v2**, **v3**, **v4**.
+```{r, error = TRUE}
+DF <- data.frame(v1, v2, v3, v4)
+DF
 ```
+
+###**Question:- Why shouldn’t you use the name “df” to name this object?**
+It is because "df" is reserve name in this package.
+
+
+
+### Change the column names of DF to “a”, “b”, “c”, and “grp”.
+```{r,  error = TRUE}
+DF <- data.frame(a = v1, b = v2, c = v3, grp = v4)
+DF
+```
+
+### **Question: why is it okay to rename a column in DF “c”, but not to rename v3 as c?**
+I am not understanding this question. Since we are changing v3 to c which is the column in DF.
+Is it some particular question that was discussed in class and might be I missed?
+
+### Look at the str of DF. What kind of data type is “grp”?
+  **Answer = the data type of "grp" is character.**  
+  
+    How would you change it between character and factor and back again?
+
+```{r,  error = TRUE}
+str(DF)
+
+DF$grp <- as.factor(DF$grp)
+str(DF)
+
+DF$grp <- as.character(DF$grp)
+str(DF)
+
+```
+
+
+### Demonstrate the use of your ner function:
+    
+    . Use my_calc to sum and divide the following pairs of objects
+
+```{r,  error = TRUE}
+library(sus346)
+s1 <- my_calc(v1, v2, "sum")
+s1
+d1 <- my_calc(v1, v2, "divide")
+d1
+
+s2 <- my_calc(v2, v3, "sum")
+s2
+d2 <- my_calc(v2, v3, "divide")
+d2
+
+s3 <- my_calc(v1, v3, "sum")
+s3
+d3 <- my_calc(v1, v3, "divide")
+d3
+
+s4 <- my_calc(m1, m1, "sum")
+s4
+d4 <- my_calc(m1, m1, "divide")
+d4
+
+s5 <- my_calc(m1, m2, "sum")
+s5
+d5 <- my_calc(m1, m2, "divide")
+d5
+```
+
+### Using my_calc with DF:
+    
+    Multiply row1, column1 by row1, column2
+    Multiply rows 1-10, column 1-3 by rows1-10, columns 1-3
+    Divide the values in columns “a” and “b” by the values in column “c” of DF corresponding to the rows in “grp” that have values “E”. 
+    In selecting the columns, use their names, rather than their index numbers, to select them
+
+```{r,  error = TRUE}
+my_calc(DF[1, 1], DF[1, 2], "multiply")
+
+my_calc(DF[1:10, 1:3], DF[1:10, 1:3], "multiply")
+
+o <- DF[DF$grp == "E", ]
+
+my_calc(o$a, o$c, "divide")
+
+my_calc(o$b, o$c, "divide")
+
+```
+### Repeat the last of the aforementioned calculations, but this time do not use my_calc.
+      
+      Simply do it using the two DF subsets with the / operator
+
+```{r,  error = TRUE}
+o$a / o$c
+
+o$b / o$c
+```
+### Demonstrate the use of *apply:
+
+    Combine v1, m1, and m2 into a list l
+    Write an lapply that applies sum to l. This one does not need an anonymous function
+    Now write an lapply that iterates over the elements of l, and uses your my_calc to multiply each element of l by v2
+    
+  **Hints:**
+    *You will need to use an anonymous function*
+    *The interior of your function (i.e. the part between ({}) will use the my_calc function.*
+    
+    Do the same but with sapply
+
+```{r,  error = TRUE}
+l <- list(v1, m1, m2)
+l
+
+lapply(1:length(l),  function(x) sum(l[[x]]))
+
+lapply(1:length(l), function(x){
+  my_calc(l[[x]], v2, "multiply")
+})
+
+sapply(1:length(l),  function(x) sum(l[[x]]))
+
+```
+
 
