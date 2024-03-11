@@ -1,0 +1,195 @@
+---
+title: "module4"
+author: "Sushil Paudel"
+date: "2024-02-25"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{module4}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
+---
+
+```{r setup, warning = FALSE, message = FALSE, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+`sus346` is the package I am developing for the coursework component of GEOG346 (Geo-Spatial Analysis with R).
+
+## 5.2.1 
+Create three tibbles, t1, t2, t3. t1 has 10 rows, with column V1 containing values G1 through G10, and V2 containing runif between 75 and 125. t2 has 15 rows with v1 (G1 - G15) and v3 containing a random selection of LETTERS A-F. t3 has 20 rows (v1 with G1-G20), and v4 with numbers from the random normal distribution (mean = 100, sd = 20). Use a seed of 1 for random numbers. Join t1, t2, and t3 within a single pipeline, using: left_join, right_join, full_join, and inner_join.
+
+```{r Creating tibbles (t1, t2, and t3), warning = FALSE, message = FALSE}
+library("dplyr")
+
+t1 <- tibble(V1 = paste0("G", 1:10), 
+                    V2 = runif(10, min = 75, max = 125))
+t1
+
+t2 <- tibble(v1 = paste0("G", 1:15), 
+                    v3 = sample(LETTERS[1:6], 15, replace = TRUE))
+t2
+
+set.seed(1)
+t3 <- tibble(v1 = paste0("G", 1:20), 
+                v4 = rnorm(20, mean = 100, sd = 20))
+t3
+
+# Joining t1, t2, and t3 within a single pipeline,
+
+
+left <- t1 %>% rename(v1 = V1) %>% 
+  left_join(t2, ., by = "v1") %>% 
+  left_join(t3, ., by = "v1")
+  
+left
+
+right <- t1 %>% rename(v1 = V1) %>% 
+  right_join(t2, ., by = "v1") %>% 
+  right_join(t3, ., by = "v1") 
+
+right
+
+full <- t1 %>% rename(v1 = V1) %>% 
+  full_join(t2, ., by = "v1") %>% 
+  full_join(t3, ., by = "v1")
+
+full
+
+inner <- t1 %>% rename(v1 = V1) %>% 
+  inner_join(t2, ., by = "v1") %>% 
+  inner_join(t3, ., by = "v1") 
+
+inner
+
+```
+
+## 5.2.2
+Recreate the crop_ylds dataset, using 1) an lapply to read in each .csv file from the package extdata/ folder, and 2) the dplyr steps necessary to *_join the data and make the necessary mutate-actions. Chunks 1, 11, 16, 19, and 21 are your guides.
+```{r, warning = FALSE, message = FALSE}
+library("tidyverse")
+
+fs <- dir(system.file("extdata", package = "geospaar"),
+         pattern = "FAOSTAT", full.names = TRUE)
+fs      
+crops <- lapply(fs, readr::read_csv)
+
+crops
+
+
+crop_ylds <- do.call(rbind, lapply(crops, function(x){
+  x %>% dplyr::select(Item, Area, Element, Year, Value) %>% 
+    pivot_wider(names_from = "Element", values_from = "Value") %>% 
+    rename(crop = Item, country = Area, year = Year, 
+           harv_area = `Area harvested`, prod = Production) %>% 
+    mutate(country = ifelse(country == "South Africa", "ZAF", country)) %>% 
+    mutate(country = ifelse(country == "Zambia", "ZMB", country)) %>% 
+    mutate(crop = tolower(crop)) %>% 
+    mutate(yield = prod/harv_area)
+  }))
+
+crop_ylds
+
+```
+
+## 5.2.3
+Use dplyr verbs to select the 5 top-ranked years for total harvested area for South African maize. Do the same for South African maize yields. To do this, you will need to use filter, arrange, and slice. The outputs for each test should be the 5 rows of crop_ylds that meet these criteria.
+```{r, warning = FALSE, message = FALSE}
+top5_harv <- crop_ylds %>% 
+  dplyr::arrange(desc(harv_area)) %>% 
+  dplyr::filter(crop == "maize", country == "ZAF") %>% 
+  dplyr::slice_head(n = 5)
+  
+top5_harv
+
+top5_prod <- crop_ylds %>% 
+  dplyr::arrange(desc(yield)) %>% 
+  dplyr::filter(crop == "maize", country == "ZAF") %>% 
+  dplyr::slice_head(n = 5)
+  
+
+
+top5_prod
+
+```
+
+## 5.2.4
+Calculate the mean of each crop’s yield (across both countries) using SAC based on dplyr, as well as an sapply using base R syntax within the sapply to subset on crop (note, subsetting a tibble is a bit different, so use this syntax to do the job within the sapply: mean(crop_ylds[crop_ylds$crop == x, ]$yield))
+```{r, warning = FALSE, message = FALSE}
+# Using SAC based on dplyr
+dplyr_mean_ylds <- crop_ylds %>% group_by(crop, country) %>% 
+ summarize(mean_yield = mean(yield))
+
+dplyr_mean_ylds
+
+# Using sapply 
+
+sapply_mean_ylds <- sapply(unique(crop_ylds$crop), function(x){
+  c <- sapply(unique(crop_ylds$country), function(y){
+    cat("\n")
+    print(paste("Split out", x)) 
+    dat <- crop_ylds[crop_ylds$crop == x & crop_ylds$country == y, ]
+      cat("\n")
+      print(paste("...then split out", y, x))
+      print(dat[1, ])
+      o <- data.frame(crop = x, country = y, mean_yield = mean(dat$mean_yield))
+    
+  })
+  
+})
+ 
+sapply_mean_ylds
+
+
+
+```
+
+
+
+
+## 5.2.5
+Calculate a correlation matrix between harv_area and yield for each crop-country combination, using dplyr verbs. Arrange the result (negative to positive) by the value of the correlation coefficient. See Chunk 34 for guidance.
+```{r, warning = FALSE, message = FALSE}
+crop_ylds %>% 
+  group_by(crop, country) %>% 
+  summarize(cor = cor(harv_area, yield)) %>% 
+  arrange(cor, desc = FALSE)
+  
+```
+
+## 5.2.6
+Create a single scatter plot with ggplot that shows the relationship between harv_area (x-axis) and yield (y-axis) for maize, separated by country on a single plot. Make it a point scatter plot, with a straight trendline fit through each set of points (i.e. method = "lm"). You will need to use geom_point and geom_smooth. Make a title (“Harvested area versus yield”) and x (“Harvested area (ha)”) and y (“Yield (t/ha)”) labels.
+```{r, Scatter, warning = FALSE, message = FALSE, fig.width=4.75, fig.height=3.75, fig.align = "center"}
+
+maize <- crop_ylds %>% filter(crop == "maize") 
+maize
+ggplot(maize, aes(x = harv_area, y = yield, color = country)) + 
+  geom_point() +
+  geom_smooth(aes(x = harv_area, y = yield), method = "lm", se = FALSE) +  
+  labs(title = "Harvested area versus yield", x = "Harvested area (ha)", y = "Yield (t/ha)")
+
+```
+
+## 5.2.7
+Create a single scatter plot with graphics::plot that plots just South African wheat yields (y-axis) against year (x-axis). Plot the points, and then add a linear trendline to it, by wrapping the abline around the lm function. Make the points solid grey (“grey”) and the abline blue. Label the y axis as “Yield (t/ha)”. Remove the x-axis label. Give a title: “South African wheat (1961-2017)”. Chunk 54 is your guide.
+```{r, warning = FALSE, message = FALSE, fig.width=4.75, fig.height=3.75, fig.align = "center"}
+SA_wheat <- crop_ylds %>% filter(crop == "wheat" & country == "ZAF")
+plot(SA_wheat$year, SA_wheat$yield,
+    pch = 16, col = "grey",         
+     xlab = "Year", ylab = "Yield (t/ha)",  
+     main = "South African wheat (1961-2017)") 
+abline(lm(yield ~ year, data = SA_wheat), col = "blue") 
+
+
+```
+
+## 5.2.8
+Use ggplot to make a 5-bin histogram of Zambia’s maize yields. The x-label should be “Yield (t/ha)”, the title should be “Zambian Maize”, and bins should be blue with black outlines.
+```{r, warning = FALSE, message = FALSE, fig.width=4.75, fig.height=3.75, fig.align = "center"}
+crop_ylds %>% filter(crop == "maize", country == "ZMB") %>% 
+  ggplot() + 
+  geom_histogram(aes(x = yield), bins = 5,
+                 fill= "blue", position = "dodge", col = "black") +
+  labs(title = "Zambian Maize",
+       x= "Yield (t/ha)") 
+
+```
