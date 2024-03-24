@@ -11,6 +11,7 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 Importing necessary libraries to perform the vignette tasks.
@@ -238,10 +239,17 @@ plot(st_geometry(districts_alb), col = "grey")
 plot(st_geometry(dists_int), col = "grey40", add = TRUE)
 plot(st_geometry(mypol), border = "yellow", add = TRUE)
 
-area <- round(mypol$area_ha,2)
-paste0("The area of mypol rectangular feature in hectare is ", {area},".")
-
 ```
+
+### `The area of mypol rectangular features`
+```{r include = FALSE}
+mypol_area <- round(mypol$area_ha,2)
+```
+
+```{r echo = FALSE, results='markup'}
+mypol_area
+```
+
 
 
 **6.2.7**
@@ -261,26 +269,38 @@ mypol_dist_int <- st_intersection(x = mypol, y = districts_alb) %>%
 
 mypol_dist_int
 
-
 par(mar = c(0, 0, 0, 0))
 rbcols <- rainbow(n = nrow(mypol_dist_int))
 plot(st_geometry(districts_alb), col = "grey")
 plot(st_geometry(mypol_dist_int), col = rbcols, add = TRUE)
 
+```
+
+
+```{r include = FALSE}
+library(knitr)
 area_report <- data.frame(distName = mypol_dist_int$distName, 
            area_ha = round(mypol_dist_int$area,2))
-print("The detail of intersection is shown in table below:")
-print(area_report)
-
 
 muarea <- round(mean(mypol_dist_int$area_ha),2)
 medarea <- round(median(mypol_dist_int$area_ha),2)
 
-paste("The mean of intersections is", {muarea},"ha.")
-paste("The median of intersections is",{medarea},"ha.")
+```
 
+### `The areas of intersections in hectares.`
+```{r echo = FALSE, results = 'asis'}
+kable(area_report, caption = "Area of Intersection")
 
+```
 
+### `The mean of interections`
+```{r echo = FALSE}
+muarea
+
+```
+### `The median of interections`
+```{r echo = FALSE}
+medarea
 ```
 
 
@@ -353,8 +373,16 @@ plot(st_geometry(districts_alb), col = "grey")
 plot(st_geometry(roads_extreme_buff), add = TRUE, col = "blue" )
 plot(st_geometry(roads_int), add = TRUE, col = "red", lwd = 3)
 
-
-roads_dist <- sum(st_length(roads_int))
-cat("The total distance of intersected roads in km is", {roads_dist})
 ```
 
+```{r echo = FALSE, include = FALSE}
+roads_dist <- sum((roads_int$length_km))
+cat("The total distance of intersected roads in km is", {roads_dist})
+
+```
+
+
+### `The total distance of intersected roads in km`
+```{r echo = FALSE}
+roads_dist
+```
